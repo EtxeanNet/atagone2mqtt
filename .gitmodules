@@ -1,3 +1,0 @@
-[submodule "lib/pyatag"]
-	path = lib/pyatag
-	url = https://github.com/MatsNl/pyatag.git
