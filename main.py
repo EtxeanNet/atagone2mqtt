@@ -8,22 +8,18 @@ import logging
 from contextlib import suppress
 import time
 import sys
+from atagmqtt.device_atagone import Device_AtagOne
+
+from configuration import ATAG_CONFIGURATION
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-
-ATAG_CONFIGURATION = {
-    'host': '192.168.249.10',
-    'hostname': 'atagmqtt'
-}
-
-class Test:
+class AtagInteraction:
     def __init__(self):
-        self.atag = AtagDataStore(**ATAG_CONFIGURATION)
+        self.atag = AtagDataStore(**ATAG_CONFIGURATION, paired=True)
 
-
-    async def setup(self):
+    async def setup(self, eventloop):
         host = ATAG_CONFIGURATION.get('host',None)
         if host:
             LOGGER.info(f"Using configured ATAG ONE {host}")
@@ -35,14 +31,20 @@ class Test:
         await self.atag.async_update()
         LOGGER.info(f"Connected to ATAG_ONE device={self.atag.device} @ {self.atag.config.host}")
         LOGGER.debug(self.atag.sensordata)
+        self.device = Device_AtagOne(self.atag,name="Atag One",eventloop=eventloop)
         # await self.temperature_updown(1)
 
     async def loop(self):
+        update_increment = ATAG_CONFIGURATION['update_interval']
+        next_time = loop.time() + update_increment
         while True:
-            await self.atag.async_update()
-            LOGGER.info('Updated at: {}'.format(self.atag.sensordata['date_time']['state']))
+            if (loop.time() > next_time):
+                await self.atag.async_update()
+                self.device.update()
+                LOGGER.info('Updated at: {}'.format(self.atag.sensordata['date_time']['state']))
+                next_time = loop.time() + update_increment
             # print(self.atag.sensordata)
-            await asyncio.sleep(15)
+            await asyncio.sleep(1)
 
     async def temperature_updown(self, degrees: int, sleep: int = 10):
         old_temp = self.atag.sensordata['ch_mode_temp']['state']
@@ -61,22 +63,14 @@ class Test:
         else:
             LOGGER.warning('Could not set back temperature')
 
-    async def main(self):
-        """Start infinite polling loop"""
-        task = asyncio.Task(self.loop())
-        await asyncio.sleep(10)
-        task.cancel()
-        with suppress(asyncio.CancelledError):
-            await task
-
 if __name__ == "__main__":
     loop = None
     try:
-        test = Test()
+        test = AtagInteraction()
         loop = asyncio.get_event_loop()
         LOGGER.info('Setup connection to ATAG ONE')
-        loop.run_until_complete(test.setup())
-        LOGGER.info('Starting the main loop')
+        loop.run_until_complete(test.setup(loop))
+        LOGGER.info('Starting the main loop for ATAG ONE')
         loop.create_task(test.loop())
         loop.run_forever()
     except KeyboardInterrupt:
