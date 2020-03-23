@@ -9,39 +9,54 @@ from homie.node.property.property_temperature import Property_Temperature
 from homie.node.property.property_integer import Property_Integer
 from homie.node.property.property_float import Property_Float
 from homie.node.property.property_string import Property_String
+from homie.node.property.property_enum import Property_Enum
+
 from pyatag import AtagDataStore
-from configuration import MQTT_CONFIGURATION, HOMIE_SETTINGS
+from .configuration import Settings
 
 LOGGER = logging.getLogger(__name__)
 
+settings = Settings()
+
 translated_mqtt_settings = {
-    'MQTT_BROKER': MQTT_CONFIGURATION['host'],
-    'MQTT_PORT': MQTT_CONFIGURATION.get('port',1883),
-    'MQTT_USERNAME' : MQTT_CONFIGURATION.get('username',None),
-    'MQTT_PASSWORD' : MQTT_CONFIGURATION.get('password',None),
-    'MQTT_CLIENT_ID' : 'homie',
+    'MQTT_BROKER': settings.mqtt_host,
+    'MQTT_PORT': settings.mqtt_port,
+    'MQTT_USERNAME' : settings.mqtt_username,
+    'MQTT_PASSWORD' : settings.mqtt_password,
+    'MQTT_CLIENT_ID' : settings.hostname,
     'MQTT_SHARE_CLIENT': False,
+}
+
+translated_homie_settings = {
+    'topic' : settings.homie_topic,
+    'fw_name' : settings.homie_fw_name,
+    'fw_version' : settings.homie_fw_version,
+    'update_interval' : settings.homie_update_interval,
 }
 
 class Device_AtagOne(Device_Base):
 
-    def __init__(self, atag: AtagDataStore, eventloop, device_id="atagone", name=None, homie_settings=HOMIE_SETTINGS, mqtt_settings=translated_mqtt_settings):
+    def __init__(self, atag: AtagDataStore, eventloop, device_id="atagone", name=None, 
+            homie_settings=translated_homie_settings, mqtt_settings=translated_mqtt_settings):
         super().__init__ (device_id, name, homie_settings, mqtt_settings)
         self._eventloop = eventloop
         self.atag: AtagDataStore = atag
         self.temp_unit = "°C"
 
-        node = (Node_Base(self,'internals','Internals','status'))
+        node = (Node_Base(self,'burner','Burner','status'))
         self.add_node (node)
 
-        self.burner_modulation = Property_Integer(node,id="burner-modulation", name="Burner modulation", settable=False)
+        self.burner_modulation = Property_Integer(node,id="modulation", name="Burner modulation", settable=False)
         node.add_property(self.burner_modulation)
+
+        self.burner_target = Property_Enum(node,id="target", name="Burner target", settable=False, data_format="none,ch,dhw")
+        node.add_property(self.burner_target)
 
         # Central heating status properties
         node = (Node_Base(self,'centralheating','Central heating','status'))
         self.add_node (node)
 
-        self.ch_status = Property_Boolean(node,id="status", name="CH status", settable=False, value = self.atag.cv_status)
+        self.ch_status = Property_Boolean(node,id="status", name="CH status", settable=False, value = self.atag.ch_status)
         node.add_property(self.ch_status)
 
         self.ch_temperature = Property_Temperature(node,id="temperature", name="CH temperature", settable=False, value = self.atag.temperature)
@@ -79,9 +94,9 @@ class Device_AtagOne(Device_Base):
         node = (Node_Base(self,'controls','Controls','controls'))
         self.add_node(node)
 
-        min_temp = 10
-        max_temp = 25
-        ch_target_temperature_limits = f'{min_temp}:{max_temp}'
+        ch_min_temp = 12
+        ch_max_temp = 25
+        ch_target_temperature_limits = f'{ch_min_temp}:{ch_max_temp}'
         self.ch_target_temperature = Property_Setpoint(node,id='ch-target-temperature',name='CH Target temperature', 
             data_format=ch_target_temperature_limits, 
             unit=self.temp_unit,
@@ -89,7 +104,9 @@ class Device_AtagOne(Device_Base):
             set_value = lambda value: self.set_ch_target_temperature(value))
         node.add_property(self.ch_target_temperature)
         
-        dhw_target_temperature_limits = f'0:65'
+        dhw_min_temp = self.atag.dhw_min_temp
+        dhw_max_temp = self.atag.dhw_max_temp
+        dhw_target_temperature_limits = f'{dhw_min_temp}:{dhw_max_temp}'
         self.dhw_target_temperature = Property_Setpoint(node,id='dhw-target-temperature',name='DHW Target temperature', 
             data_format=dhw_target_temperature_limits, 
             unit=self.temp_unit,
@@ -97,7 +114,9 @@ class Device_AtagOne(Device_Base):
             set_value = lambda value: self.set_dhw_target_temperature(value))
         node.add_property(self.dhw_target_temperature)
 
-        self.hvac_mode = Property_String(node,id='hvac-mode',name='HVAC mode', 
+        hvac_values = "auto,heat"
+        self.hvac_mode = Property_Enum(node,id='hvac-mode',name='HVAC mode', 
+            data_format=hvac_values,
             value = self.atag.hvac_mode,
             set_value = lambda value: self.set_hvac_mode(value))
         node.add_property(self.hvac_mode)
@@ -105,7 +124,7 @@ class Device_AtagOne(Device_Base):
         self.start()
 
     def set_ch_target_temperature(self,value):
-        oldvalue = self.ch_target_temperature.value
+        oldvalue = self.atag.target_temperature
         LOGGER.info(f"Setting target CH temperature from {oldvalue} to {value} {self.temp_unit}")
         self.ch_target_temperature.value = value
         self._eventloop.create_task(self._async_set_ch_target_temperature(value))
@@ -116,7 +135,7 @@ class Device_AtagOne(Device_Base):
             LOGGER.info(f"Succeeded setting target CH temperature to {value} {self.temp_unit}")
 
     def set_dhw_target_temperature(self,value):
-        oldvalue = self.dhw_target_temperature.value
+        oldvalue = self.atag.dhw_target_temperature
         LOGGER.info(f"Setting target DHW temperature from {oldvalue} to {value} {self.temp_unit}")
         self.dhw_target_temperature.value = value
         self._eventloop.create_task(self._async_set_dhw_target_temperature(value))
@@ -127,7 +146,7 @@ class Device_AtagOne(Device_Base):
             LOGGER.info(f"Succeeded setting target DHW temperature to {value} {self.temp_unit}")
     
     def set_hvac_mode(self,value):
-        oldvalue = self.hvac_mode
+        oldvalue = self.atag.hvac_mode
         LOGGER.info(f"Setting HVAC mode from {oldvalue} to {value}")
         self.hvac_mode.value = value
         self._eventloop.create_task(self._async_set_hvac_mode(value))
@@ -137,13 +156,14 @@ class Device_AtagOne(Device_Base):
         if success:
             LOGGER.info(f"Succeeded setting HVAC mode to {value}")
 
-    def update(self):
+    async def update(self):
+        await self.atag.async_update()
         LOGGER.debug("Updating from latest device report")
         self.burner_modulation.value           = self.atag.burner_status[1].get('state',0) if self.atag.burner_status[0] else 0
         self.hvac_mode.value                   = self.atag.hvac_mode
 
         self.ch_target_temperature.value       = self.atag.target_temperature
-        self.ch_status.value                   = self.atag.cv_status
+        self.ch_status.value                   = self.atag.ch_status
         self.ch_temperature.value              = self.atag.temperature
         self.ch_water_temperature.value        = self.atag.sensordata['ch_water_temp'].get('state',0)
         self.ch_water_pressure.value           = self.atag.sensordata['ch_water_pres'].get('state',0)
@@ -155,6 +175,12 @@ class Device_AtagOne(Device_Base):
         self.dhw_status.value                  = self.atag.dhw_status
 
         self.weather_temperature.value         = self.atag.sensordata['weather_temp'].get('state',0)
-        
+
+        if self.atag.dhw_status:
+            self.burner_target.value = "dhw"
+        elif self.atag.ch_status:        
+            self.burner_target.value = "ch"
+        else:
+            self.burner_target.value = "none"
         
 
