@@ -56,7 +56,7 @@ class Device_AtagOne(Device_Base):
         node = (Node_Base(self,'centralheating','Central heating','status'))
         self.add_node (node)
 
-        self.ch_status = Property_Boolean(node,id="status", name="CH status", settable=False, value = self.atag.ch_status)
+        self.ch_status = Property_Boolean(node,id="status", name="CH status", settable=False)
         node.add_property(self.ch_status)
 
         self.ch_temperature = Property_Temperature(node,id="temperature", name="CH temperature", settable=False, value = self.atag.temperature)
@@ -78,7 +78,7 @@ class Device_AtagOne(Device_Base):
         node = (Node_Base(self,'domestichotwater','Domestic hot water','status'))
         self.add_node (node)
 
-        self.dhw_status = Property_Boolean(node,id="status", name="DHW status", settable=False, value = self.atag.dhw_status)
+        self.dhw_status = Property_Boolean(node,id="status", name="DHW status", settable=False)
         node.add_property(self.dhw_status)
 
         self.dhw_temperature = Property_Temperature(node,id="temperature", name="DHW temperature", settable=False, value = self.atag.dhw_temperature)
@@ -163,7 +163,7 @@ class Device_AtagOne(Device_Base):
         self.hvac_mode.value                   = self.atag.hvac_mode
 
         self.ch_target_temperature.value       = self.atag.target_temperature
-        self.ch_status.value                   = self.atag.ch_status
+        self.ch_status.value                   = "true" if self.atag.ch_status else "false"
         self.ch_temperature.value              = self.atag.temperature
         self.ch_water_temperature.value        = self.atag.sensordata['ch_water_temp'].get('state',0)
         self.ch_water_pressure.value           = self.atag.sensordata['ch_water_pres'].get('state',0)
@@ -172,7 +172,7 @@ class Device_AtagOne(Device_Base):
 
         self.dhw_target_temperature.value      = self.atag.dhw_target_temperature
         self.dhw_temperature.value             = self.atag.dhw_temperature
-        self.dhw_status.value                  = self.atag.dhw_status
+        self.dhw_status.value                  = "true" if self.atag.dhw_status else "false"
 
         self.weather_temperature.value         = self.atag.sensordata['weather_temp'].get('state',0)
 
