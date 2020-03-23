@@ -8,6 +8,7 @@ from homie.node.property.property_boolean import Property_Boolean
 from homie.node.property.property_temperature import Property_Temperature
 from homie.node.property.property_integer import Property_Integer
 from homie.node.property.property_float import Property_Float
+from homie.node.property.property_string import Property_String
 from pyatag import AtagDataStore
 from configuration import MQTT_CONFIGURATION, HOMIE_SETTINGS
 
@@ -33,7 +34,7 @@ class Device_AtagOne(Device_Base):
         node = (Node_Base(self,'internals','Internals','status'))
         self.add_node (node)
 
-        self.burner_modulation = Property_Integer(node,id="burner-modulation", name="Burner modulation", settable=False, value = self.atag.burner_status[1].get('state',0))
+        self.burner_modulation = Property_Integer(node,id="burner-modulation", name="Burner modulation", settable=False)
         node.add_property(self.burner_modulation)
 
         # Central heating status properties
@@ -95,6 +96,11 @@ class Device_AtagOne(Device_Base):
             value = self.atag.dhw_target_temperature,
             set_value = lambda value: self.set_dhw_target_temperature(value))
         node.add_property(self.dhw_target_temperature)
+
+        self.hvac_mode = Property_String(node,id='hvac-mode',name='HVAC mode', 
+            value = self.atag.hvac_mode,
+            set_value = lambda value: self.set_hvac_mode(value))
+        node.add_property(self.hvac_mode)
         
         self.start()
 
@@ -120,9 +126,21 @@ class Device_AtagOne(Device_Base):
         if success:
             LOGGER.info(f"Succeeded setting target DHW temperature to {value} {self.temp_unit}")
     
+    def set_hvac_mode(self,value):
+        oldvalue = self.hvac_mode
+        LOGGER.info(f"Setting HVAC mode from {oldvalue} to {value}")
+        self.hvac_mode.value = value
+        self._eventloop.create_task(self._async_set_hvac_mode(value))
+
+    async def _async_set_hvac_mode(self,value):
+        success = await self.atag.set_hvac_mode(value)
+        if success:
+            LOGGER.info(f"Succeeded setting HVAC mode to {value}")
+
     def update(self):
         LOGGER.debug("Updating from latest device report")
-        self.burner_modulation.value           = self.atag.burner_status[1].get('state',0)
+        self.burner_modulation.value           = self.atag.burner_status[1].get('state',0) if self.atag.burner_status[0] else 0
+        self.hvac_mode.value                   = self.atag.hvac_mode
 
         self.ch_target_temperature.value       = self.atag.target_temperature
         self.ch_status.value                   = self.atag.cv_status
