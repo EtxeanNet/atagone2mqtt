@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     homie_topic: str = Field('homie',env='HOMIE_TOPIC')
     homie_implementation: str = f"Atag One Homie {atagmqtt.__version__} Homie 3 Version {homie.__version__}"
     homie_fw_name: str = "AtagOne"
-    homie_fw_version: str = atagmqtt.__package__
+    homie_fw_version: str = "0.1.0"
 
     @staticmethod
     @validator("loglevel")
