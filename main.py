@@ -32,7 +32,8 @@ class AtagInteraction:
         LOGGER.info(f"Connected to ATAG_ONE device={self.atag.device} @ {self.atag.config.host}")
         LOGGER.debug(self.atag.sensordata)
         self.device = Device_AtagOne(self.atag,name="Atag One",eventloop=eventloop)
-        # await self.temperature_updown(1)
+        print(self.atag.sensordata)
+
 
     async def loop(self):
         update_increment = ATAG_CONFIGURATION['update_interval']
