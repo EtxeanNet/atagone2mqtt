@@ -122,21 +122,21 @@ class Device_AtagOne(Device_Base):
     
     def update(self):
         LOGGER.debug("Updating from latest device report")
-        self.burner_modulation.value = self.atag.burner_status[1].get('state',0)
+        self.burner_modulation.value           = self.atag.burner_status[1].get('state',0)
 
-        self.ch_target_temperature.value = self.atag.target_temperature
-        self.ch_status.value = self.atag.cv_status
-        self.ch_temperature.value = self.atag.temperature
-        self.ch_water_temperature.value = self.atag.sensordata['ch_water_temp'].get('state',0)
-        self.ch_water_pressure.value = self.atag.sensordata['ch_water_pres'].get('state',0)
+        self.ch_target_temperature.value       = self.atag.target_temperature
+        self.ch_status.value                   = self.atag.cv_status
+        self.ch_temperature.value              = self.atag.temperature
+        self.ch_water_temperature.value        = self.atag.sensordata['ch_water_temp'].get('state',0)
+        self.ch_water_pressure.value           = self.atag.sensordata['ch_water_pres'].get('state',0)
         self.ch_target_water_temperature.value = self.atag.sensordata['ch_setpoint'].get('state',0)
-        self.ch_return_water_temperature = self.atag.sensordata['ch_return_temp'].get('state',0)
+        self.ch_return_water_temperature.value = self.atag.sensordata['ch_return_temp'].get('state',0)
 
-        self.dhw_target_temperature.value = self.atag.dhw_target_temperature
-        self.dhw_temperature.value = self.atag.dhw_temperature
-        self.dhw_status.value = self.atag.dhw_status
+        self.dhw_target_temperature.value      = self.atag.dhw_target_temperature
+        self.dhw_temperature.value             = self.atag.dhw_temperature
+        self.dhw_status.value                  = self.atag.dhw_status
 
-        self.weather_temperature.value = self.atag.sensordata['weather_temp'].get('state',0)
+        self.weather_temperature.value         = self.atag.sensordata['weather_temp'].get('state',0)
         
         
 
