@@ -36,6 +36,7 @@ TRANSLATED_HOMIE_SETTINGS = {
 class DeviceAtagOne(Device_Base):
     """ATAG ONE device."""
     def __init__(self, atag: AtagDataStore, eventloop, device_id="atagone", name=None):
+        """ Create and ATAG ONE device."""
         super().__init__(device_id, name, TRANSLATED_HOMIE_SETTINGS, TRANSLATED_MQTT_SETTINGS)
         self._eventloop = eventloop
         self.atag: AtagDataStore = atag
