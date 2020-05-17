@@ -4,7 +4,7 @@ import homie
 import atagmqtt
 
 class Settings(BaseSettings):
-    """Settings of the ATAG ONE MQTT bridge."""
+    """Application settings for the ATAG ONE MQTT bridge."""
     hostname: str = Field('atagmqtt', env='HOSTNAME')
     loglevel: str = Field('INFO', env='LOGLEVEL')
 

@@ -11,7 +11,7 @@ SETTINGS = Settings()
 LOGGER = logging.getLogger(__name__)
 
 class AtagInteraction:
-    """Interaction with ATAG as a datastore."""
+    """Interaction with ATAG ONE as a datastore."""
     def __init__(self):
         """Create an interaction with ATAG ONE."""
         self.atag = AtagDataStore(host=SETTINGS.atag_host, hostname=SETTINGS.hostname, paired=True)
