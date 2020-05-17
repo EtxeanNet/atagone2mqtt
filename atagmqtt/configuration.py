@@ -27,5 +27,5 @@ class Settings(BaseSettings):
 
     class Config:
         """Where to find the environment file containing the settings."""
-        
+
         env_file = '.env'
