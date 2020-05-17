@@ -5,6 +5,7 @@ import atagmqtt
 
 class Settings(BaseSettings):
     """Application settings for the ATAG ONE MQTT bridge."""
+
     hostname: str = Field('atagmqtt', env='HOSTNAME')
     loglevel: str = Field('INFO', env='LOGLEVEL')
 
@@ -25,5 +26,6 @@ class Settings(BaseSettings):
     homie_fw_version: str = "0.1.0"
 
     class Config:
-        """Config settings."""
+        """Where to find the environment file containing the settings."""
+        
         env_file = '.env'
