@@ -4,7 +4,7 @@ FROM python:3.8-slim as base
 
 FROM base as builder
 RUN apt-get update \
-    && apt-get install gcc git --no-install-recommends -y \
+    && apt-get install gcc=4:8.* git=1:2.* --no-install-recommends -y \
     && apt-get clean
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
