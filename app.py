@@ -1,4 +1,4 @@
-""" The main app. """
+"""The main app."""
 import logging
 from atagmqtt.atag_interaction import AtagInteraction
 from atagmqtt.configuration import Settings
