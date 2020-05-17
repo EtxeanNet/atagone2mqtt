@@ -1,4 +1,7 @@
 # atagone-mqtt-bridge
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8945158f76d2480c9aceb943fb435d14)](https://app.codacy.com/gh/EtxeanNet/atagone-mqtt-bridge?utm_source=github.com&utm_medium=referral&utm_content=EtxeanNet/atagone-mqtt-bridge&utm_campaign=Badge_Grade_Dashboard)
+
 An app to control and monitor an Atag One thermostat via Python/Docker
 
 ## Introduction
