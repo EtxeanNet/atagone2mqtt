@@ -15,7 +15,7 @@ WORKDIR /tmp
 RUN git clone https://github.com/ArdKuijpers/pyatag.git
 
 FROM base as app
-ADD . /app
+COPY . /app
 COPY --from=builder /root/.local /root/.local
 COPY --from=builder /tmp/pyatag/pyatag /app/pyatag
 

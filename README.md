@@ -1,6 +1,8 @@
 # atagone-mqtt-bridge
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8945158f76d2480c9aceb943fb435d14)](https://app.codacy.com/gh/EtxeanNet/atagone-mqtt-bridge?utm_source=github.com&utm_medium=referral&utm_content=EtxeanNet/atagone-mqtt-bridge&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/fd572a99c73f429cb6aba7ac43776515)](https://www.codacy.com/gh/EtxeanNet/atagone-mqtt-bridge?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=EtxeanNet/atagone-mqtt-bridge&amp;utm_campaign=Badge_Grade)
+![Docker Pulls](https://img.shields.io/docker/pulls/etxean/atagone-mqtt-bridge)
+[![HitCount](https://hits.dwyl.com/EtxeanNet/atagone-mqtt-bridge.svg)](https://hits.dwyl.com/EtxeanNet/atagone-mqtt-bridge)
 
 An app to control and monitor an Atag One thermostat via Python/Docker
 
