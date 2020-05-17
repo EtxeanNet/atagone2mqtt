@@ -1,4 +1,4 @@
-''' ATAG ONE device module. '''
+""" ATAG ONE device module. """
 import logging
 
 from homie.device_base import Device_Base
@@ -34,7 +34,7 @@ TRANSLATED_HOMIE_SETTINGS = {
 }
 
 class DeviceAtagOne(Device_Base):
-    ''' ATAG ONE device. '''
+    """ ATAG ONE device. """
     def __init__(self, atag: AtagDataStore, eventloop, device_id="atagone", name=None):
         super().__init__(device_id, name, TRANSLATED_HOMIE_SETTINGS, TRANSLATED_MQTT_SETTINGS)
         self._eventloop = eventloop
@@ -140,7 +140,7 @@ class DeviceAtagOne(Device_Base):
         self.start()
 
     def set_ch_target_temperature(self, value):
-        ''' Set target central heating temperature. '''
+        """ Set target central heating temperature. """
         oldvalue = self.atag.target_temperature
         LOGGER.info(f"Setting target CH temperature from {oldvalue} to {value} {self.temp_unit}")
         self.ch_target_temperature.value = value
@@ -152,7 +152,7 @@ class DeviceAtagOne(Device_Base):
             LOGGER.info(f"Succeeded setting target CH temperature to {value} {self.temp_unit}")
 
     def set_dhw_target_temperature(self, value):
-        ''' Set target domestic hot water temperature. '''
+        """ Set target domestic hot water temperature. """
         oldvalue = self.atag.dhw_target_temperature
         LOGGER.info(f"Setting target DHW temperature from {oldvalue} to {value} {self.temp_unit}")
         self.dhw_target_temperature.value = value
@@ -164,7 +164,7 @@ class DeviceAtagOne(Device_Base):
             LOGGER.info(f"Succeeded setting target DHW temperature to {value} {self.temp_unit}")
 
     def set_hvac_mode(self, value):
-        ''' Set HVAC mode. '''
+        """ Set HVAC mode. """
         oldvalue = self.atag.hvac_mode
         LOGGER.info(f"Setting HVAC mode from {oldvalue} to {value}")
         self.hvac_mode.value = value
@@ -176,7 +176,7 @@ class DeviceAtagOne(Device_Base):
             LOGGER.info(f"Succeeded setting HVAC mode to {value}")
 
     async def update(self):
-        ''' Update device status from atag datastorage. '''
+        """ Update device status from atag datastorage. """
         await self.atag.async_update()
         LOGGER.debug("Updating from latest device report")
         self.burner_modulation.value = \
