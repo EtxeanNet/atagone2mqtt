@@ -1,10 +1,10 @@
-''' Configuration module '''
+''' Configuration module. '''
 from pydantic import BaseSettings, Field
 import homie
 import atagmqtt
 
 class Settings(BaseSettings):
-    ''' Settings of the ATAG ONE MQTTbridge '''
+    ''' Settings of the ATAG ONE MQTT bridge. '''
     hostname: str = Field('atagmqtt', env='HOSTNAME')
     loglevel: str = Field('INFO', env='LOGLEVEL')
 
@@ -25,5 +25,5 @@ class Settings(BaseSettings):
     homie_fw_version: str = "0.1.0"
 
     class Config:
-        ''' Config settings '''
+        ''' Config settings. '''
         env_file = '.env'

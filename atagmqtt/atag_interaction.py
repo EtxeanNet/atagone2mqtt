@@ -11,14 +11,14 @@ SETTINGS = Settings()
 LOGGER = logging.getLogger(__name__)
 
 class AtagInteraction:
-    ''' Interaction with ATAG as a datastore '''
+    ''' Interaction with ATAG as a datastore. '''
     def __init__(self):
         self.atag = AtagDataStore(host=SETTINGS.atag_host, hostname=SETTINGS.hostname, paired=True)
         self.eventloop = None
         self.device = None
 
     def main(self):
-        ''' The main processing function '''
+        ''' The main processing function. '''
         self.eventloop = None
         try:
             self.eventloop = asyncio.get_event_loop()
@@ -37,7 +37,7 @@ class AtagInteraction:
                 self.eventloop = None
 
     async def setup(self):
-        ''' Setup the connection with the ATAG ONE device '''
+        ''' Setup the connection with the ATAG ONE device. '''
         if SETTINGS.atag_host:
             LOGGER.info(f"Using configured ATAG ONE {SETTINGS.atag_host}")
         else:
@@ -49,7 +49,7 @@ class AtagInteraction:
         LOGGER.info(f"Connected to ATAG_ONE device {self.atag.device} @ {self.atag.config.host}")
 
     async def loop(self):
-        ''' the event loop '''
+        ''' The event loop. '''
         next_time = self.eventloop.time()
         while True:
             await asyncio.sleep(1)
