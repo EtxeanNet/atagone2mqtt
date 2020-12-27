@@ -2,6 +2,7 @@
 from pydantic import BaseSettings, Field
 import homie
 import atagmqtt
+from .__init__ import __version__
 
 class Settings(BaseSettings):
     """Application settings for the ATAG ONE MQTT bridge."""
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     homie_implementation: str \
         = f"Atag One Homie {atagmqtt.__version__} Homie 3 Version {homie.__version__}"
     homie_fw_name: str = "AtagOne"
-    homie_fw_version: str = "0.1.0"
+    homie_fw_version: str = __version__
 
     class Config:
         """Where to find the environment file containing the settings."""
