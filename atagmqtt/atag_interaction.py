@@ -1,60 +1,50 @@
 """Interaction with ATAG ONE."""
+from typing import Optional
 import asyncio
 import logging
+import aiohttp
 
-from pyatag.gateway import AtagDataStore
+from pyatag import AtagException, AtagOne
+from pyatag.discovery import async_discover_atag
 from .device_atagone import DeviceAtagOne
 from .configuration import Settings
-
 
 SETTINGS = Settings()
 LOGGER = logging.getLogger(__name__)
 
-class AtagInteraction:
-    """Interaction with ATAG ONE as a datastore."""
-    def __init__(self):
-        """Create an interaction with ATAG ONE."""
-        self.atag = AtagDataStore(host=SETTINGS.atag_host, hostname=SETTINGS.hostname, paired=True)
-        self.eventloop = None
-        self.device = None
-
-    def main(self):
-        """The main processing function."""
-        self.eventloop = None
-        try:
-            self.eventloop = asyncio.get_event_loop()
-            LOGGER.info('Setup connection to ATAG ONE')
-            self.eventloop.run_until_complete(self.setup())
-            LOGGER.info('Starting the main loop for ATAG ONE')
-            self.eventloop.create_task(self.loop())
-            self.eventloop.run_forever()
-        except KeyboardInterrupt:
-            LOGGER.info('Closing connection to ATAG ONE')
-        finally:
-            LOGGER.info('Cleaning up')
-            if self.eventloop:
-                self.eventloop.run_until_complete(self.eventloop.shutdown_asyncgens())
-                self.eventloop.close()
-                self.eventloop = None
-
-    async def setup(self):
-        """Setup the connection with the ATAG ONE device."""
-        if SETTINGS.atag_host:
-            LOGGER.info(f"Using configured ATAG ONE {SETTINGS.atag_host}")
-        else:
-            LOGGER.info(f"Discovering ATAG ONE")
-            await self.atag.async_host_search()
-
-        await self.atag.async_update()
-        self.device = DeviceAtagOne(self.atag, name="Atag One", eventloop=self.eventloop)
-        LOGGER.info(f"Connected to ATAG_ONE device {self.atag.device} @ {self.atag.config.host}")
-
-    async def loop(self):
-        """The event loop."""
-        next_time = self.eventloop.time()
+async def main():
+    """The main processing function."""
+    async with aiohttp.ClientSession() as session:
+        await run(session)
+    
+async def run(session: aiohttp.ClientSession):
+    try:
+        LOGGER.info('Setup connection to ATAG ONE')
+        device = await setup(session)
+        LOGGER.info('Starting the main loop for ATAG ONE')
         while True:
-            await asyncio.sleep(1)
-            if self.eventloop.time() > next_time:
-                await self.device.update()
-                LOGGER.info('Updated at: {}'.format(self.atag.sensordata['date_time']['state']))
-                next_time = self.eventloop.time() + SETTINGS.atag_update_interval
+            await asyncio.sleep(SETTINGS.atag_update_interval)
+            await device.update()
+            LOGGER.info('Updated at: {}'.format(device.atag.report.report_time))
+    except AtagException as atag_ex:
+        LOGGER.error(atag_ex)
+        return False
+    except KeyboardInterrupt:
+        LOGGER.info('Closing connection to ATAG ONE')
+
+async def setup(session: aiohttp.ClientSession) -> DeviceAtagOne:
+    
+    """Setup the connection with the ATAG ONE device."""
+    if SETTINGS.atag_host:
+        LOGGER.info(f"Using configured ATAG ONE {SETTINGS.atag_host}")
+    else:
+        LOGGER.info(f"Discovering ATAG ONE")
+        atag_ip, atag_id = await async_discover_atag() # for auto discovery, requires access to UDP broadcast (hostnet)
+        SETTINGS.atag_host = atag_ip
+
+    atag = AtagOne(SETTINGS.atag_host, session)
+    await atag.authorize()
+    await atag.update(force=True)
+    device = DeviceAtagOne(atag, asyncio.get_running_loop(), name="Atag One")
+    LOGGER.info(f"Connected to ATAG ONE device @ {atag.host}")
+    return device
