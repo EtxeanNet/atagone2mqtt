@@ -1,5 +1,4 @@
 """Interaction with ATAG ONE."""
-from typing import Optional
 import asyncio
 import logging
 import aiohttp
@@ -16,7 +15,7 @@ async def main():
     """The main processing function."""
     async with aiohttp.ClientSession() as session:
         await run(session)
-    
+
 async def run(session: aiohttp.ClientSession):
     try:
         LOGGER.info('Setup connection to ATAG ONE')
@@ -38,8 +37,8 @@ async def setup(session: aiohttp.ClientSession) -> DeviceAtagOne:
     if SETTINGS.atag_host:
         LOGGER.info(f"Using configured ATAG ONE {SETTINGS.atag_host}")
     else:
-        LOGGER.info(f"Discovering ATAG ONE")
-        atag_ip, atag_id = await async_discover_atag() # for auto discovery, requires access to UDP broadcast (hostnet)
+        LOGGER.info("Discovering ATAG ONE")
+        atag_ip, _ = await async_discover_atag() # for auto discovery, requires access to UDP broadcast (hostnet)
         SETTINGS.atag_host = atag_ip
 
     atag = AtagOne(SETTINGS.atag_host, session)
