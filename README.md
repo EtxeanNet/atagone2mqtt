@@ -36,3 +36,9 @@ The configuration of atagone-mqtt-bridge is done with the following environment 
 ## Build
 
 You can run the app directly from Python, after installing the modules from `requirements.txt`. Alternatatively, you can use the supplied Dockerfile to build a Docker container to run app.
+
+Building for docker hub can be done with:
+
+```bash
+docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag etxean/atagone-mqtt-bridge:<version> --tag etxean/atagone-mqtt-bridge:latest .
+```
