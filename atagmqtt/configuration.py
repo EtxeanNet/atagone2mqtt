@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     hostname: str = Field('atagmqtt', env='HOSTNAME')
     loglevel: str = Field('INFO', env='LOGLEVEL')
 
+    atag_setup_timeout: int = Field(30, env='ATAG_SETUP_TIMEOUT')
+
     atag_update_interval: int = Field(30, env='ATAG_UPDATE_INTERVAL')
     atag_host: str = Field(None, env='ATAG_HOST')
     atag_paired: bool = Field(False, env='ATAG_PAIRED')

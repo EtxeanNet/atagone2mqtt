@@ -36,8 +36,8 @@ TRANSLATED_HOMIE_SETTINGS = {
 
 class DeviceAtagOne(Device_Base):
     """The ATAG ONE device."""
-    def __init__(self, atag: AtagOne, eventloop, device_id="atagone", name=None):
-        """Create an ATAG ONE device."""
+    def __init__(self, atag: AtagOne, eventloop, device_id="atagone", name="Atag One"):
+        """Create an ATAG ONE Homie device."""
         super().__init__(device_id, name, TRANSLATED_HOMIE_SETTINGS, TRANSLATED_MQTT_SETTINGS)
         self.atag: AtagOne = atag
         self.temp_unit = atag.climate.temp_unit
@@ -154,7 +154,7 @@ class DeviceAtagOne(Device_Base):
         oldvalue = self.atag.climate.target_temperature
         LOGGER.info(f"Setting target CH temperature from {oldvalue} to {value} {self.temp_unit}")
         self.ch_target_temperature.value = value
-        self._run_task(self._async_set_ch_target_temperature(value))
+        self._run_coroutine(self._async_set_ch_target_temperature(value))
 
     async def _async_set_ch_target_temperature(self, value):
         await self.atag.climate.set_temp(value)
@@ -165,7 +165,7 @@ class DeviceAtagOne(Device_Base):
         oldvalue = self.atag.dhw.target_temperature
         LOGGER.info(f"Setting target DHW temperature from {oldvalue} to {value} {self.temp_unit}")
         self.dhw_target_temperature.value = value
-        self._run_task(self._async_set_dhw_target_temperature(value))
+        self._run_coroutine(self._async_set_dhw_target_temperature(value))
 
     async def _async_set_dhw_target_temperature(self, value):
         await self.atag.dhw.set_temp(value)
@@ -176,7 +176,7 @@ class DeviceAtagOne(Device_Base):
         oldvalue = self.atag.climate.hvac_mode
         LOGGER.info(f"Setting HVAC mode from {oldvalue} to {value}")
         self.hvac_mode.value = value
-        self._run_task(self._async_set_hvac_mode(value))
+        self._run_coroutine(self._async_set_hvac_mode(value))
 
     async def _async_set_hvac_mode(self, value):
         await self.atag.climate.set_hvac_mode(value)
@@ -210,5 +210,5 @@ class DeviceAtagOne(Device_Base):
         else:
             self.burner_target.value = "none"
 
-    def _run_task(self, coroutine):
+    def _run_coroutine(self, coroutine):
         asyncio.run_coroutine_threadsafe(coroutine, self._eventloop)
