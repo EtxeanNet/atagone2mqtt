@@ -35,13 +35,13 @@ async def setup(session: aiohttp.ClientSession, loop: asyncio.AbstractEventLoop)
         LOGGER.info(f"Using discovered ATAG ONE @ {SETTINGS.atag_host}")
 
     atag = AtagOne(SETTINGS.atag_host, session)
-    LOGGER.info(f"Authorizing...")
+    LOGGER.info("Authorizing...")
     await atag.authorize()
-    LOGGER.info(f"Updating...")
+    LOGGER.info("Updating...")
     await atag.update(force=True)
-    LOGGER.info(f"Creating Homie device...")
+    LOGGER.info("Creating Homie device...")
     device = DeviceAtagOne(atag, loop)
-    LOGGER.info(f"Setup connection to ATAG ONE @ {atag.host} succeeded")
+    LOGGER.info(f"Setup connection from Homie device '{device.device_id} to ATAG ONE @ {atag.host} succeeded")
     return device
 
 def handle_exception(loop, context):
