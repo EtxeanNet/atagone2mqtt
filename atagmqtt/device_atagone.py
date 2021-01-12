@@ -23,7 +23,7 @@ TRANSLATED_MQTT_SETTINGS = {
     'MQTT_PORT': SETTINGS.mqtt_port,
     'MQTT_USERNAME' : SETTINGS.mqtt_username,
     'MQTT_PASSWORD' : SETTINGS.mqtt_password,
-    'MQTT_CLIENT_ID' : SETTINGS.hostname,
+    'MQTT_CLIENT_ID' : SETTINGS.mqtt_client,
     'MQTT_SHARE_CLIENT': False,
 }
 

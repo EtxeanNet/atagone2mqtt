@@ -1,8 +1,12 @@
 """Configuration module."""
+import os
+
 from pydantic import BaseSettings, Field
 import homie
 import atagmqtt
-from .__init__ import __version__
+from .__init__ import __version__, NAME
+
+HOSTNAME = os.getenv("HOSTNAME")
 
 class Settings(BaseSettings):
     """Application settings for the ATAG ONE MQTT bridge."""
@@ -20,6 +24,7 @@ class Settings(BaseSettings):
     mqtt_port: int = Field(1883, env='MQTT_PORT')
     mqtt_username: str = Field(None, env='MQTT_USERNAME')
     mqtt_password: str = Field(None, env='MQTT_PASSWORD')
+    mqtt_client: str = Field(f"{NAME}-{HOSTNAME}", env='MQTT_CLIENT')
 
     homie_update_interval: int = 60
     homie_topic: str = Field('homie', env='HOMIE_TOPIC')
