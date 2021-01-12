@@ -25,13 +25,16 @@ The configuration of atagone-mqtt-bridge is done with the following environment 
 : USe this if your MQTT broker uses a port different from 1883.
 
 `MQTT_USERNAME`
-: Only use you need to use a username to connect to your MQTT broker.
+: Only use this if you need to use a username to connect to your MQTT broker.
 
 `MQTT_PASSWORD`
-: Only use you need this to connect to your MQTT broker.
+: Only use this if you need this to connect to your MQTT broker.
+
+`MQTT_CLIENT`
+: The name used to identify this client to the MQTT broker. If not specified, the client will announce itself as '&lt;atagmqtt-HOSTNAME&gt;'.
 
 `ATAG_HOST`
-: The address of your Atag One  MQTT broker. If this is not specified then the Atag One themostat is discovered automatically on the local netwerk. Make sure that UDP port 11000 is not blocked by the firewall.
+: The address of your Atag One thermostat. If this is not specified then the Atag One themostat is discovered automatically on the local netwerk. Make sure that UDP port 11000 is not blocked by the firewall.
 
 ## Build
 
