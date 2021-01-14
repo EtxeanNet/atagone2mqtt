@@ -1,7 +1,6 @@
 """Interaction with ATAG ONE."""
 import asyncio
 import logging
-import time
 import aiohttp
 
 from pyatag import AtagException, AtagOne
@@ -24,7 +23,7 @@ async def interact_with_atag(loop: asyncio.AbstractEventLoop, setup_timeout = 30
             LOGGER.info('Updated at: {}'.format(device.atag.report.report_time))
 
 async def setup(session: aiohttp.ClientSession, loop: asyncio.AbstractEventLoop) -> DeviceAtagOne:
-    
+
     """Setup the connection with the ATAG ONE device."""
     if SETTINGS.atag_host:
         LOGGER.info(f"Using configured ATAG ONE @ {SETTINGS.atag_host}")
@@ -41,7 +40,8 @@ async def setup(session: aiohttp.ClientSession, loop: asyncio.AbstractEventLoop)
     await atag.update(force=True)
     LOGGER.info("Creating Homie device...")
     device = DeviceAtagOne(atag, loop)
-    LOGGER.info(f"Setup connection from Homie device '{SETTINGS.homie_topic}/{device.device_id}' to ATAG ONE @ {atag.host} succeeded")
+    LOGGER.info(f"Setup connection from Homie device '{SETTINGS.homie_topic}/{device.device_id}'"
+                f" to ATAG ONE @ {atag.host} succeeded")
     return device
 
 def handle_exception(loop, context):

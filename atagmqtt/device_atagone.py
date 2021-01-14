@@ -43,6 +43,7 @@ class DeviceAtagOne(Device_Base):
         self.temp_unit = atag.climate.temp_unit
         self._eventloop = eventloop
 
+        LOGGER.debug("Setting up Homie nodes")
         node = (Node_Base(self, 'burner', 'Burner', 'status'))
         self.add_node(node)
 
@@ -147,6 +148,7 @@ class DeviceAtagOne(Device_Base):
             value=self.atag.climate.hvac_mode,
             set_value=self.set_hvac_mode)
         node.add_property(self.hvac_mode)
+        LOGGER.debug("Setting up Homie nodes")
         self.start()
 
     def set_ch_target_temperature(self, value):
@@ -159,7 +161,7 @@ class DeviceAtagOne(Device_Base):
     async def _async_set_ch_target_temperature(self, value):
         await self.atag.climate.set_temp(value)
         LOGGER.info(f"Succeeded setting target CH temperature to {value} {self.temp_unit}")
-        
+
     def set_dhw_target_temperature(self, value):
         """Set target domestic hot water temperature."""
         oldvalue = self.atag.dhw.target_temperature
@@ -170,7 +172,7 @@ class DeviceAtagOne(Device_Base):
     async def _async_set_dhw_target_temperature(self, value):
         await self.atag.dhw.set_temp(value)
         LOGGER.info(f"Succeeded setting target DHW temperature to {value} {self.temp_unit}")
-        
+
     def set_hvac_mode(self, value):
         """Set HVAC mode."""
         oldvalue = self.atag.climate.hvac_mode
@@ -181,7 +183,7 @@ class DeviceAtagOne(Device_Base):
     async def _async_set_hvac_mode(self, value):
         await self.atag.climate.set_hvac_mode(value)
         LOGGER.info(f"Succeeded setting HVAC mode to {value}")
-        
+
     async def update(self):
         """Update device status from atag device."""
         await self.atag.update()
