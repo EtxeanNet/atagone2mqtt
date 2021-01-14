@@ -197,11 +197,11 @@ class DeviceAtagOne(Device_Base):
         self.ch_water_temperature.value = self.atag.report["CH Water Temperature"].state
         self.ch_water_pressure.value = self.atag.report["CH Water Pressure"].state
         self.ch_return_water_temperature.value = self.atag.report["CH Return Temperature"].state
-        self.ch_status.value = "true" if self.atag.climate.status else "false"
+        self.ch_status.value = True if self.atag.climate.status else False
 
         self.dhw_target_temperature.value = self.atag.dhw.target_temperature
         self.dhw_temperature.value = self.atag.dhw.temperature
-        self.dhw_status.value = "true" if self.atag.dhw.status else "false"
+        self.dhw_status.value = True if self.atag.dhw.status else False
 
         self.weather_temperature.value = self.atag.report["weather_temp"].state
 
