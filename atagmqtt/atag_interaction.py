@@ -37,7 +37,7 @@ async def setup(session: aiohttp.ClientSession, loop: asyncio.AbstractEventLoop)
     LOGGER.info("Authorizing...")
     await atag.authorize()
     LOGGER.info("Updating...")
-    await atag.update(force=True)
+    await atag.update()
     LOGGER.info("Creating Homie device...")
     device = DeviceAtagOne(atag, loop)
     LOGGER.info(f"Setup connection from Homie device '{SETTINGS.homie_topic}/{device.device_id}'"
