@@ -1,7 +1,9 @@
 """Configuration module."""
 import os
+from typing import Optional
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 import homie
 import atagmqtt
 from .__init__ import __version__, NAME
@@ -17,13 +19,13 @@ class Settings(BaseSettings):
     atag_setup_timeout: int = Field(30, env='ATAG_SETUP_TIMEOUT')
 
     atag_update_interval: int = Field(30, env='ATAG_UPDATE_INTERVAL')
-    atag_host: str = Field(None, env='ATAG_HOST')
+    atag_host: Optional[str] = Field(None, env='ATAG_HOST')
     atag_paired: bool = Field(False, env='ATAG_PAIRED')
 
-    mqtt_host: str = Field(None, env='MQTT_HOST')
+    mqtt_host: Optional[str] = Field(None, env='MQTT_HOST')
     mqtt_port: int = Field(1883, env='MQTT_PORT')
-    mqtt_username: str = Field(None, env='MQTT_USERNAME')
-    mqtt_password: str = Field(None, env='MQTT_PASSWORD')
+    mqtt_username: Optional[str] = Field(None, env='MQTT_USERNAME')
+    mqtt_password: Optional[str] = Field(None, env='MQTT_PASSWORD')
     mqtt_client: str = Field(f"{NAME}-{HOSTNAME}", env='MQTT_CLIENT')
 
     homie_update_interval: int = 60
