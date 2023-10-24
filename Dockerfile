@@ -1,6 +1,6 @@
 
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.9-slim as base
+FROM python:3.9.18-slim-bullseye as base
 
 FROM base as builder
 RUN apt-get update \
