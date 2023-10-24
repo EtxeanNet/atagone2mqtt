@@ -1,10 +1,10 @@
 
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.9.18-slim-bullseye as base
+FROM python:3.10-slim-bookworm as base
 
 FROM base as builder
 RUN apt-get update \
-    && apt-get install gcc=4:10.* git=1:2.* -y \
+    && apt-get install gcc git -y \
     && apt-get clean
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
