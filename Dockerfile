@@ -24,7 +24,7 @@ ENV VIRTUAL_ENV=/app/.venv \
 RUN apt update && apt install -y bluez
 
 COPY --from=build ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-COPY ./victronmqtt victronmqtt
+COPY ./atagmqtt atagmqtt
 
 # During debugging, this entry point will be overridden. For more information, refer to https://aka.ms/vscode-docker-python-debug
 CMD ["python", "-m", "atagmqtt"]
