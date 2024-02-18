@@ -3,15 +3,15 @@ import os
 from typing import Optional
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import homie
 import atagmqtt
-from .__init__ import __version__, NAME
+from . import __version__, NAME
 
 HOSTNAME = os.getenv("HOSTNAME")
 
 class Settings(BaseSettings):
-    """Application settings for the ATAG ONE MQTT bridge."""
+    """Application settings for the AtagOne2mqtt bridge."""
 
     hostname: str = Field('atagmqtt', env='HOSTNAME')
     loglevel: str = Field('INFO', env='LOGLEVEL')
@@ -35,7 +35,4 @@ class Settings(BaseSettings):
     homie_fw_name: str = "AtagOne"
     homie_fw_version: str = __version__
 
-    class Config:
-        """Where to find the environment file containing the settings."""
-
-        env_file = '.env'
+    model_config = SettingsConfigDict(env_file='.env')

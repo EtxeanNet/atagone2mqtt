@@ -1,31 +1,30 @@
-
-# For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.10-slim-bookworm as base
-
-FROM base as builder
-RUN apt-get update \
-    && apt-get install gcc git -y \
-    && apt-get clean
-COPY requirements.txt /app/requirements.txt
+FROM python:3.11-slim as build
 WORKDIR /app
-ENV PATH=/root/.local/bin:$PATH
-RUN pip install --user -r requirements.txt
-COPY . /app
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-FROM base as app
-COPY . /app
-COPY --from=builder /root/.local /root/.local
+COPY pyproject.toml poetry.lock ./
 
-# # Keeps Python from generating .pyc files in the container
-# ENV PYTHONDONTWRITEBYTECODE 1
+RUN apt update && apt install -y build-essential
+RUN \
+    if [ `dpkg --print-architecture` = "armhf" ]; then \
+    printf "[global]\nextra-index-url=https://www.piwheels.org/simple\n" > /etc/pip.conf ; \
+    fi
+RUN pip install poetry
+RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED 1
-
-# Access local binaries
-ENV PATH=/root/.local/bin:$PATH
-
+FROM python:3.11-slim as final
 WORKDIR /app
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 
+
+RUN apt update && apt install -y bluez
+
+COPY --from=build ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+COPY ./victronmqtt victronmqtt
 
 # During debugging, this entry point will be overridden. For more information, refer to https://aka.ms/vscode-docker-python-debug
-CMD ["python", "app.py"]
+CMD ["python", "-m", "atagmqtt"]

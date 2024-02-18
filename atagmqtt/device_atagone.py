@@ -14,38 +14,22 @@ from homie.node.property.property_string import Property_String
 
 from pyatag import AtagOne
 from pyatag.const import STATES
-from .configuration import Settings
+from .settings import Settings
 
-
-LOGGER = logging.getLogger(__name__)
-SETTINGS = Settings()
-
-TRANSLATED_MQTT_SETTINGS = {
-    'MQTT_BROKER': SETTINGS.mqtt_host,
-    'MQTT_PORT': SETTINGS.mqtt_port,
-    'MQTT_USERNAME' : SETTINGS.mqtt_username,
-    'MQTT_PASSWORD' : SETTINGS.mqtt_password,
-    'MQTT_CLIENT_ID' : SETTINGS.mqtt_client,
-    'MQTT_SHARE_CLIENT': False,
-}
-
-TRANSLATED_HOMIE_SETTINGS = {
-    'topic' : SETTINGS.homie_topic,
-    'fw_name' : SETTINGS.homie_fw_name,
-    'fw_version' : SETTINGS.homie_fw_version,
-    'update_interval' : SETTINGS.homie_update_interval,
-}
+logger = logging.getLogger(__name__)
 
 class DeviceAtagOne(Device_Base):
     """The ATAG ONE device."""
-    def __init__(self, atag: AtagOne, eventloop, device_id="atagone", name="Atag One"):
+    def __init__(self, atag: AtagOne, eventloop, device_id="atagone", name="Atag One", settings: Settings = Settings()):
         """Create an ATAG ONE Homie device."""
-        super().__init__(device_id, name, TRANSLATED_HOMIE_SETTINGS, TRANSLATED_MQTT_SETTINGS)
+        homie_settings = self._to_homie_settings(settings)
+        mqtt_settings = self._to_mqtt_settings(settings)
+        super().__init__(device_id, name, homie_settings, mqtt_settings)
         self.atag: AtagOne = atag
         self.temp_unit = atag.climate.temp_unit
         self._eventloop = eventloop
 
-        LOGGER.debug("Setting up Homie nodes")
+        logger.debug("Setting up Homie nodes")
         node = (Node_Base(self, 'burner', 'Burner', 'status'))
         self.add_node(node)
 
@@ -182,58 +166,58 @@ class DeviceAtagOne(Device_Base):
             )
         node.add_property(self.ch_mode_control)
 
-        LOGGER.debug("Starting Homie device")
+        logger.debug("Starting Homie device")
         self.start()
 
     def set_ch_target_temperature(self, value):
         """Set target central heating temperature."""
         oldvalue = self.atag.climate.target_temperature
-        LOGGER.info(f"Setting target CH temperature from {oldvalue} to {value} {self.temp_unit}")
+        logger.info(f"Setting target CH temperature from {oldvalue} to {value} {self.temp_unit}")
         self.ch_target_temperature.value = value
         self._run_coroutine(self._async_set_ch_target_temperature(value))
 
     async def _async_set_ch_target_temperature(self, value):
         await self.atag.climate.set_temp(value)
-        LOGGER.info(f"Succeeded setting target CH temperature to {value} {self.temp_unit}")
+        logger.info(f"Succeeded setting target CH temperature to {value} {self.temp_unit}")
 
     def set_dhw_target_temperature(self, value):
         """Set target domestic hot water temperature."""
         oldvalue = self.atag.dhw.target_temperature
-        LOGGER.info(f"Setting target DHW temperature from {oldvalue} to {value} {self.temp_unit}")
+        logger.info(f"Setting target DHW temperature from {oldvalue} to {value} {self.temp_unit}")
         self.dhw_target_temperature.value = value
         self._run_coroutine(self._async_set_dhw_target_temperature(value))
 
     async def _async_set_dhw_target_temperature(self, value):
         await self.atag.dhw.set_temp(value)
-        LOGGER.info(f"Succeeded setting target DHW temperature to {value} {self.temp_unit}")
+        logger.info(f"Succeeded setting target DHW temperature to {value} {self.temp_unit}")
 
     def set_hvac_mode(self, value):
         """Set HVAC mode."""
         oldvalue = self.atag.climate.hvac_mode
-        LOGGER.info(f"Setting HVAC mode from {oldvalue} to {value}")
+        logger.info(f"Setting HVAC mode from {oldvalue} to {value}")
         self.hvac_mode.value = value
         self._run_coroutine(self._async_set_hvac_mode(value))
 
     async def _async_set_hvac_mode(self, value):
         await self.atag.climate.set_hvac_mode(value)
-        LOGGER.info(f"Succeeded setting HVAC mode to {value}")
+        logger.info(f"Succeeded setting HVAC mode to {value}")
 
     def set_ch_mode(self, value):
         """Set CH mode."""
         oldvalue = self.atag.climate.preset_mode
-        LOGGER.info(f"Setting CH mode from {oldvalue} to {value}")
+        logger.info(f"Setting CH mode from {oldvalue} to {value}")
         self.ch_mode_control.value = value
         self.ch_mode.value = value
         self._run_coroutine(self._async_set_ch_mode(value))
 
     async def _async_set_ch_mode(self, value):
         await self.atag.climate.set_preset_mode(value)
-        LOGGER.info(f"Succeeded setting CH mode to {value}")
+        logger.info(f"Succeeded setting CH mode to {value}")
 
     async def update(self):
         """Update device status from atag device."""
         await self.atag.update()
-        LOGGER.debug("Updating from latest device report")
+        logger.debug("Updating from latest device report")
         self.burner_modulation.value = self.atag.climate.flame
         self.hvac_mode.value = self.atag.climate.hvac_mode
         self.ch_mode.value = self.atag.climate.preset_mode
@@ -264,3 +248,21 @@ class DeviceAtagOne(Device_Base):
 
     def _run_coroutine(self, coroutine):
         asyncio.run_coroutine_threadsafe(coroutine, self._eventloop)
+
+    def _to_homie_settings(self, settings: Settings):
+        return {
+            'topic' : settings.homie_topic,
+            'fw_name' : settings.homie_fw_name,
+            'fw_version' : settings.homie_fw_version,
+            'update_interval' : settings.homie_update_interval,
+        }
+    
+    def _to_mqtt_settings(self, settings: Settings):
+        return {
+            'MQTT_BROKER': settings.mqtt_host,
+            'MQTT_PORT': settings.mqtt_port,
+            'MQTT_USERNAME' : settings.mqtt_username,
+            'MQTT_PASSWORD' : settings.mqtt_password,
+            'MQTT_CLIENT_ID' : settings.mqtt_client,
+            'MQTT_SHARE_CLIENT': False,
+        }

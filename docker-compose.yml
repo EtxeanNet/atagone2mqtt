@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  atagonemqttbridge:
-    image: atagonemqttbridge
+  atagone2mqtt:
+    image: atagone2mqtt
     build:
       context: .
       dockerfile: Dockerfile
