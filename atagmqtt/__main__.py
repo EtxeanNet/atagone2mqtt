@@ -1,6 +1,7 @@
 """Interaction with ATAG ONE."""
 import asyncio
 import logging
+import time
 import aiohttp
 
 from pyatag import AtagException, AtagOne
@@ -65,4 +66,8 @@ async def main(settings):
         logger.info("AtagOne2mqtt bridge has stopped")
 
 if __name__ == "__main__":
-    asyncio.run(main(_settings))
+    try:
+        asyncio.run(main(_settings))
+    except:
+        logger.error(f'Unrecoverable error caught. Waiting {_settings.restart_timeout} s')
+        time.sleep(_settings.restart_timeout)
