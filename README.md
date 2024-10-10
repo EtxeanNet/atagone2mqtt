@@ -38,7 +38,15 @@ The configuration of atagone2mqtt is done with the following environment variabl
 
 ## Build
 
-You can run the app directly from Python, after installing the modules from `requirements.txt`. Alternatatively, you can use the supplied Dockerfile to build a Docker container to run app.
+You can run the app directly from Python, after installing the modules with [poetry](https://python-poetry.org/docs/):
+
+```bash
+pip install poetry
+poetry install --without dev --no-root
+python -m atagmqtt
+```
+
+Alternatatively, you can use the supplied Dockerfile to build a Docker container to run app.
 
 Building for docker hub can be done with:
 
