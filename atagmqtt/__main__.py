@@ -60,14 +60,12 @@ async def main(settings):
         logger.error(f'Connection to AtagOne device could not be established within {settings.atag_setup_timeout} s')
     except AtagException as atag_ex:
         logger.error(f"Caught ATAG exception: {atag_ex}")
+        logger.info(f'Waiting {_settings.restart_timeout} s to restart')
+        time.sleep(_settings.restart_timeout)
     except KeyboardInterrupt:
         logger.info('Closing connection to AtagOne due to keyboard interrupt')
     finally:
         logger.info("AtagOne2mqtt bridge has stopped")
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main(_settings))
-    except:
-        logger.error(f'Unrecoverable error caught. Waiting {_settings.restart_timeout} s')
-        time.sleep(_settings.restart_timeout)
+    asyncio.run(main(_settings))

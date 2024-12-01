@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS build
+FROM python:3.12 AS build
 WORKDIR /app
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
@@ -7,14 +7,18 @@ ENV POETRY_NO_INTERACTION=1 \
 
 COPY pyproject.toml poetry.lock ./
 
-RUN apt update && apt install -y build-essential
+RUN apt update && apt install -y build-essential dos2unix
 RUN if [ $(dpkg --print-architecture) = "armhf" ]; then \
     printf "[global]\nextra-index-url=https://www.piwheels.org/simple\n" > /etc/pip.conf ; \
     fi
 RUN pip install poetry
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
 
-FROM python:3.11-slim AS final
+COPY homie.patch ./
+RUN find .venv/lib/python3.12/site-packages/homie -type f -print0 | xargs -0 unix2dos
+RUN patch --verbose  -p0 -i homie.patch
+
+FROM python:3.12-slim AS final
 WORKDIR /app
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH" \
