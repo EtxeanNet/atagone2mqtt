@@ -38,6 +38,15 @@
      logger.info ('Closed Devices')
 --- .venv/lib/python3.12/site-packages/homie/node/property/property_base.py.orig	2024-12-01 13:13:19.563768881 +0100
 +++ .venv/lib/python3.12/site-packages/homie/node/property/property_base.py	2024-12-01 13:16:45.943557530 +0100
+@@ -5,7 +5,7 @@
+ 
+ def validate_id(id):
+     if isinstance(id, str):
+-        r = re.compile("(^(?!\-)[a-z0-9\-]+(?<!\-)$)")
++        r = re.compile(r"^(?!-)[a-z0-9-]+(?<!-)$")
+         return id if r.match(id) else False
+ 
+ 
 @@ -148,7 +148,7 @@
  
      def publish_tags(self, retain=True, qos=1):

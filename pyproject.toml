@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "atagmqtt"
-version = "0.5.4"
+version = "0.5.5"
 description = "AtagOne to MQTT bridge"
 authors = ["Ard Kuijpers <ardkuijpers@gmail.com>"]
 readme = "README.md"
