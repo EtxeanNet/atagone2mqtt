@@ -144,7 +144,7 @@ class DeviceAtagOne(Device_Base):
         self.dhw_target_temperature = Property_Setpoint(
             node, id='dhw-target-temperature', name='DHW Target temperature',
             data_format=dhw_target_temperature_limits,
-            unit=self.temp_unit, value=self.atag.dhw.target_temperature,
+            unit=self.temp_unit, value=max(self.atag.dhw.target_temperature, dhw_min_temp),
             set_value=self.set_dhw_target_temperature)
         node.add_property(self.dhw_target_temperature)
 
@@ -256,7 +256,7 @@ class DeviceAtagOne(Device_Base):
             'fw_version' : settings.homie_fw_version,
             'update_interval' : settings.homie_update_interval,
         }
-    
+
     def _to_mqtt_settings(self, settings: Settings):
         return {
             'MQTT_BROKER': settings.mqtt_host,

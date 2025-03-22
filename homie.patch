@@ -1,37 +1,37 @@
 --- .venv/lib/python3.12/site-packages/homie/device_base.py.orig	2024-12-01 13:13:19.563768881 +0100
 +++ .venv/lib/python3.12/site-packages/homie/device_base.py	2024-12-01 13:15:44.858792494 +0100
 @@ -97,7 +97,7 @@
- 
+
          self.mqtt_subscription_handlers = {}
- 
--        global devices 
+
+-        global devices
 +        global devices
          devices.append(self)
- 
+
          #atexit.register(self.close)
 @@ -166,7 +166,7 @@
      def publish_extensions(self, retain=True, qos=1):
          extensions = ",".join(self.extensions)
- 
+
 -        if extensions is not "":
 +        if extensions != "":
              self.publish("/".join((self.topic, "$extensions")), extensions, retain, qos)
- 
+
          if "stats" in self.extensions:
 @@ -195,7 +195,7 @@
- 
+
  #    def publish_homeassistant(self,hass_config,hass_payload):
  #        self.publish(hass_config,hass_payload, True, 1)
--        
+-
 +
      def add_subscription(self,topic,handler,qos=0): #subscription list to the required MQTT topics, used by properties to catch set topics
          self.mqtt_subscription_handlers [topic] = handler
          self.mqtt_client.subscribe (topic,qos)
 @@ -309,7 +309,7 @@
- 
+
  def close_devices(*arg):
      logger.info ('Closing Devices')
--    global devices 
+-    global devices
 +    global devices
      for device in devices:
          device.close()
@@ -39,20 +39,20 @@
 --- .venv/lib/python3.12/site-packages/homie/node/property/property_base.py.orig	2024-12-01 13:13:19.563768881 +0100
 +++ .venv/lib/python3.12/site-packages/homie/node/property/property_base.py	2024-12-01 13:16:45.943557530 +0100
 @@ -5,7 +5,7 @@
- 
+
  def validate_id(id):
      if isinstance(id, str):
 -        r = re.compile("(^(?!\-)[a-z0-9\-]+(?<!\-)$)")
 +        r = re.compile(r"^(?!-)[a-z0-9-]+(?<!-)$")
          return id if r.match(id) else False
- 
- 
+
+
 @@ -148,7 +148,7 @@
- 
+
      def publish_tags(self, retain=True, qos=1):
          tags = ",".join(self.tags)
 -        if tags is not "":
 +        if tags != "":
              self.publish("/".join((self.topic, "$tags")), tags, retain, qos)
- 
+
      def publish_meta(self, retain=True, qos=1):
