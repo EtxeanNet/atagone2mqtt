@@ -21,7 +21,8 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry -v install --without dev 
 FROM python:3.12-slim AS final
 WORKDIR /app
 ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1
 
 COPY --from=build ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 COPY atagmqtt ./atagmqtt
