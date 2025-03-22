@@ -1,11 +1,10 @@
 """Interaction with ATAG ONE."""
 import asyncio
 import logging
-import time
 import aiohttp
 
-from pyatag import AtagException, AtagOne, RequestError
-from pyatag.discovery import async_discover_atag, discover_atag
+from pyatag import AtagException, AtagOne
+from pyatag.discovery import discover_atag
 from .device_atagone import DeviceAtagOne
 from .settings import Settings
 
@@ -15,11 +14,11 @@ logging.getLogger('pyatag').setLevel(_settings.loglevel)
 logging.getLogger('homie').setLevel(_settings.loglevel)
 logging.getLogger('homie.device_base').setLevel(logging.INFO)
 logging.getLogger('homie.node').setLevel(logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('atagmqtt')
 
 async def main(settings: Settings):
-    """Main function."""   
-    logger.info(f"Starting AtagOne2mqtt bridge")
+    """Main function."""
+    logger.info("Starting AtagOne2mqtt bridge")
     if settings.atag_host:
         logger.info(f"Using configured AtagOne @ {settings.atag_host}")
     else:
@@ -27,13 +26,11 @@ async def main(settings: Settings):
         atag_ip, _ = discover_atag() # for auto discovery, requires access to UDP broadcast (hostnet)
         settings.atag_host = atag_ip
         logger.info(f"Using discovered AtagOne @ {settings.atag_host}")
-    logger.info(f"Using MQTT broker @ {settings.mqtt_host}:{settings.mqtt_port}")   
+    logger.info(f"Using MQTT broker @ {settings.mqtt_host}:{settings.mqtt_port}")
 
-    logger.info("AtagOne2mqtt bridge is starting")
     while True:
+        logger.info("AtagOne2mqtt bridge is starting")
         try:
-            loop = asyncio.get_event_loop()
-            loop.set_exception_handler(handle_exception)
             async with aiohttp.ClientSession() as session:
                 logger.info('Setup connection to AtagOne')
                 atag = AtagOne(settings.atag_host, session)
@@ -45,19 +42,20 @@ async def main(settings: Settings):
                 device = DeviceAtagOne(atag, "atagone", "Atag One", settings)
                 logger.info(f"Setup connection from Homie device '{settings.homie_topic}/{device.device_id}'"
                             f" to AtagOne @ {atag.host} succeeded")
-                
+
                 logger.info('Start processing AtagOne reports and commands')
                 while True:
                     await asyncio.sleep(settings.atag_update_interval)
                     await device.update()
                     logger.info('Updated at: {}'.format(device.atag.report.report_time))
-        
-        except RequestError:
-            logger.error(f'Connection to AtagOne device could not be established')
+
         except AtagException as atag_ex:
             logger.error(f"Caught ATAG exception: {atag_ex}")
             logger.info(f'Waiting {_settings.restart_timeout} s to restart')
-            time.sleep(_settings.restart_timeout)
+            await asyncio.sleep(_settings.restart_timeout)
+        except asyncio.CancelledError:
+            logger.info('Closing connection to AtagOne due to cancellation')
+            exit(0)
         except KeyboardInterrupt:
             logger.info('Closing connection to AtagOne due to keyboard interrupt')
             exit(0)
@@ -66,7 +64,6 @@ async def main(settings: Settings):
             exit(1)
         finally:
             logger.info("AtagOne2mqtt bridge has stopped")
-            loop.close()
 
 if __name__ == "__main__":
     asyncio.run(main(_settings))
