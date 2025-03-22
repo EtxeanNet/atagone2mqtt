@@ -51,5 +51,5 @@ Alternatatively, you can use the supplied Dockerfile to build a Docker container
 Building for docker hub can be done with:
 
 ```bash
-docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag etxean/atagone2mqtt:<version> --tag etxean/atagone2mqtt:latest .
+docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag etxean/atagone2mqtt:<version> --tag etxean/atagone2mqtt:latest .
 ```

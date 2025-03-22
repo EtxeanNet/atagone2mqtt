@@ -32,6 +32,8 @@ async def main(settings: Settings):
     logger.info("AtagOne2mqtt bridge is starting")
     while True:
         try:
+            loop = asyncio.get_event_loop()
+            loop.set_exception_handler(handle_exception)
             async with aiohttp.ClientSession() as session:
                 logger.info('Setup connection to AtagOne')
                 atag = AtagOne(settings.atag_host, session)
@@ -64,6 +66,7 @@ async def main(settings: Settings):
             exit(1)
         finally:
             logger.info("AtagOne2mqtt bridge has stopped")
+            loop.close()
 
 if __name__ == "__main__":
     asyncio.run(main(_settings))
