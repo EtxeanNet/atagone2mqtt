@@ -1,14 +1,15 @@
 [tool.poetry]
 name = "atagmqtt"
-version = "0.5.7"
+version = "0.5.8"
 description = "AtagOne to MQTT bridge"
 authors = ["Ard Kuijpers <ardkuijpers@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-homie4 = "^0.4.0"
-paho-mqtt = "^1.6.0"
+# homie4 = "^0.4.0"
+homie4 = { path = "packages/homie4-0.4.1-py3-none-any.whl" }
+paho-mqtt = ">1.3.0,<2"
 pydantic-settings = "^2.2.0"
 aiohttp = "^3.9.4"
 pyatag = "^0.3.7.1"

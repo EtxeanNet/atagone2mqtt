@@ -260,9 +260,10 @@ class DeviceAtagOne(Device_Base):
             'MQTT_USERNAME' : settings.mqtt_username,
             'MQTT_PASSWORD' : settings.mqtt_password,
             'MQTT_CLIENT_ID' : settings.mqtt_client,
-            'MQTT_SHARE_CLIENT': False,
+            'MQTT_SHARE_CLIENT': settings.mqtt_share_client,
+            'MQTT_TLS' : settings.mqtt_tls,
         }
-        
+
 def _async_to_sync(awaitable):
     loop = asyncio.get_event_loop()
     return loop.run_until_complete(awaitable)

@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     mqtt_username: Optional[str] = Field(None, env='MQTT_USERNAME')
     mqtt_password: Optional[str] = Field(None, env='MQTT_PASSWORD')
     mqtt_client: str = Field(f"{NAME}-{HOSTNAME}", env='MQTT_CLIENT')
+    mqtt_share_client: bool = Field(True, env="MQTT_SHARE_CLIENT")
+    mqtt_tls: bool = Field(False, env='MQTT_TLS')
 
     homie_update_interval: int = 60
     homie_topic: str = Field('homie', env='HOMIE_TOPIC')
