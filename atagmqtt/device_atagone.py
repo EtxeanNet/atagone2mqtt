@@ -173,7 +173,7 @@ class DeviceAtagOne(Device_Base):
         oldvalue = self.atag.climate.target_temperature
         logger.info(f"Setting target CH temperature from {oldvalue} to {value} {self.temp_unit}")
         self.ch_target_temperature.value = value
-        _async_to_sync(self._async_set_ch_target_temperature(value))
+        self._async_to_sync(self._async_set_ch_target_temperature(value))
 
     async def _async_set_ch_target_temperature(self, value):
         await self.atag.climate.set_temp(value)
@@ -184,7 +184,7 @@ class DeviceAtagOne(Device_Base):
         oldvalue = self.atag.dhw.target_temperature
         logger.info(f"Setting target DHW temperature from {oldvalue} to {value} {self.temp_unit}")
         self.dhw_target_temperature.value = value
-        _async_to_sync(self._async_set_dhw_target_temperature(value))
+        self._async_to_sync(self._async_set_dhw_target_temperature(value))
 
     async def _async_set_dhw_target_temperature(self, value):
         await self.atag.dhw.set_temp(value)
@@ -195,7 +195,7 @@ class DeviceAtagOne(Device_Base):
         oldvalue = self.atag.climate.hvac_mode
         logger.info(f"Setting HVAC mode from {oldvalue} to {value}")
         self.hvac_mode.value = value
-        _async_to_sync(self._async_set_hvac_mode(value))
+        self._async_to_sync(self._async_set_hvac_mode(value))
 
     async def _async_set_hvac_mode(self, value):
         await self.atag.climate.set_hvac_mode(value)
@@ -264,6 +264,13 @@ class DeviceAtagOne(Device_Base):
             'MQTT_TLS' : settings.mqtt_tls,
         }
 
-def _async_to_sync(awaitable):
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(awaitable)
+    def _async_to_sync(self,awaitable):
+        """Run an async function in a sync context."""
+        loop = self.atag._session.loop
+        if loop.is_running():
+            # If the loop is already running, use asyncio.run_coroutine_threadsafe
+            future = asyncio.run_coroutine_threadsafe(awaitable, loop)
+            return future.result()
+        else:
+            # If the loop is not running, run it directly
+            return asyncio.run(awaitable)
